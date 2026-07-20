@@ -1,0 +1,10 @@
+# Exclude untracked sensitive data tables & exports
+list.html
+resources/
+*.json
+*.xlsx
+*.csv
+*.tsv
+
+# Exclude local codebase memory graph artifacts
+.codebase-memory/
