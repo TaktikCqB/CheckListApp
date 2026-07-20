@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Чек-лист оцінювання ефективності лектора</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogItCn0LXrLWvQuNGB0YIg0L7RhtGW0L3RjtCy0LDQvdC90Y8iLAogICJzaG9ydF9uYW1lIjogItCn0LXrLWvQuNGB0YIiLAogICJkZXNjcmlwdGlvbiI6ICLQhtC90YLQtdGA0LDQutGC0LjQstC90LjQuSDRh9C10Lot0LvQuNGB0YIg0L7RhtGW0L3RjtCy0LDQvdC90Y8g0LXRhNC10LrRgtC40LLQvdC+0YHRgtGWINGW0L3RgdGC0YDRg9C60YLQvtGA0LAiLAogICJzdGFydF91cmwiOiAiLyIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiI2YzZjRmNiIsCiAgInRoZW1lX2NvbG9yIjogIiMzYjgyZjYiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJodHRwczovL3BsYWNlaG9sZC5jby8xOTJ4MTkyLzNiODJmNi93aGl0ZT90ZXh0PeCQIiwKICAgICAgInNpemVzIjogIjE5MngxOTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9wbmciCiAgICB9LAogICAgewogICAgICAic3JjIjogImh0dHBzOi8vcGxhY2Vob2xkLmNvLzUxMng1MTIvM2I4MmY2L3doaXRlP3RleHQ94JAgIiwKICAgICAgInNpemVzIjogIjUxMng1MTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9wbmciCiAgICB9CiAgXQp9">
+    
+    <!-- iOS Support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Чек-лист">
+    <link rel="apple-touch-icon" href="https://placehold.co/192x192/3b82f6/white?text=✓">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+        
+        /* Custom checkbox styling */
+        .custom-checkbox {
+            appearance: none;
+            background-color: #fff;
+            margin: 0;
+            font: inherit;
+            color: currentColor;
+            width: 1.5em;
+            height: 1.5em;
+            border: 2px solid #cbd5e1;
+            border-radius: 0.25em;
+            display: grid;
+            place-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .custom-checkbox::before {
+            content: "";
+            width: 0.8em;
+            height: 0.8em;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em white;
+            background-color: transparent;
+            transform-origin: center;
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+        }
+
+        .custom-checkbox:checked {
+            background-color: #3b82f6;
+            border-color: #3b82f6;
+        }
+
+        .custom-checkbox:checked::before {
+            transform: scale(1);
+        }
+
+        /* Input field styling */
+        .score-input {
+            transition: border-color 0.2s ease-in-out;
+        }
+        .score-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px #93c5fd;
+        }
+        
+        /* Progress bar animation */
+        .progress-bar-fill {
+            transition: width 0.4s ease-in-out, background-color 0.4s ease-in-out;
+        }
+
+        /* Prevent text selection on mobile elements that shouldn't be selected */
+        .no-select {
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /* Print optimization styling */
+        .print-only {
+            display: none;
+        }
+
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                padding: 0 !important;
+            }
+            .no-print, .controls-bar, #history-modal, button {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            .max-w-4xl {
+                max-width: 100% !important;
+                box-shadow: none !important;
+                border: none !important;
+                border-radius: 0 !important;
+            }
+            .bg-blue-600 {
+                background-color: #1e40af !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .bg-gray-50 {
+                background-color: #f9fafb !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .break-inside-avoid {
+                break-inside: avoid;
+            }
+        }
+
+        /* Safe areas for notches */
+        @supports (padding-top: env(safe-area-inset-top)) {
+            body {
+                padding-top: env(safe-area-inset-top);
+                padding-bottom: env(safe-area-inset-bottom);
+                padding-left: env(safe-area-inset-left);
+                padding-right: env(safe-area-inset-right);
+            }
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen p-3 md:p-8">
+    <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+        
+        <!-- Header -->
+        <div class="bg-blue-600 text-white p-6 md:p-8 relative">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold mb-1">Чек-лист оцінювання ефективності лектора</h1>
+                    <p class="text-blue-100 opacity-90 text-sm md:text-base">Засновано на аналізі зворотного зв'язку методологів</p>
+                </div>
+                <div class="no-print bg-blue-700/60 text-blue-100 text-xs px-3 py-1.5 rounded-full backdrop-blur-md border border-blue-400/30 flex items-center shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5 text-green-300" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3 1a1 1 0 000 2h10a1 1 0 100-2H5zm0 4a1 1 0 100 2h7a1 1 0 100-2H5z" clip-rule="evenodd" />
+                    </svg>
+                    <span>🔒 Локальні дані на девайсі</span>
+                </div>
+            </div>
+            
+            <!-- Sticky Score Card inside Header -->
+            <div class="mt-4 flex flex-col sm:flex-row justify-between items-center bg-white/10 rounded-xl p-4 backdrop-blur-sm border border-white/20">
+                <div class="mb-4 sm:mb-0">
+                    <span class="text-xs uppercase tracking-wider font-semibold text-blue-200 block">Загальний бал</span>
+                    <div class="flex items-baseline no-select">
+                        <span id="total-score" class="text-4xl md:text-5xl font-bold">0</span>
+                        <span class="text-xl ml-1 text-blue-200">/ 100</span>
+                    </div>
+                </div>
+                
+                <div class="w-full sm:w-1/2 flex flex-col">
+                    <div class="flex justify-between text-sm mb-1 font-medium">
+                        <span id="status-text" class="text-white">Незадовільно</span>
+                        <span id="progress-percentage">0%</span>
+                    </div>
+                    <div class="w-full bg-blue-900/50 rounded-full h-3">
+                        <div id="progress-bar" class="progress-bar-fill bg-red-400 h-3 rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls Toolbar (No-Print) -->
+        <div class="no-print flex flex-wrap justify-between items-center p-3 md:p-4 border-b border-gray-200 bg-gray-50 gap-2 controls-bar">
+            <div class="flex items-center space-x-2 text-xs md:text-sm text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                </svg>
+                <span>Чекбокси — повний бал. Інпути — дробовий бал.</span>
+            </div>
+            
+            <div class="flex flex-wrap gap-2 items-center">
+                <!-- Action Buttons -->
+                <button onclick="saveCurrentToLocal()" class="px-3 py-1.5 text-xs md:text-sm font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors shadow-sm flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                    </svg>
+                    Зберегти
+                </button>
+                
+                <button onclick="openHistoryModal()" class="px-3 py-1.5 text-xs md:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors shadow-sm flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7z" />
+                        <path fill-rule="evenodd" d="M4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zm1 3a1 1 0 100 2h10a1 1 0 100-2H5zm-1 5a1 1 0 011-1h6a1 1 0 110 2H5a1 1 0 01-1-1z" clip-rule="evenodd" />
+                    </svg>
+                    Історія <span id="history-count-badge" class="ml-1 bg-blue-100 text-blue-800 text-xs px-1.5 py-0.5 rounded-full font-bold">0</span>
+                </button>
+
+                <div class="h-5 w-px bg-gray-300 mx-0.5"></div>
+
+                <button onclick="exportAllJSON()" title="Завантажити резервну копію у файлі JSON" class="px-2.5 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:outline-none transition-colors flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Експорт JSON
+                </button>
+
+                <button onclick="triggerImportJSON()" title="Завантажити історію з файлу JSON" class="px-2.5 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:outline-none transition-colors flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                    Імпорт JSON
+                </button>
+                <input type="file" id="json-file-input" class="hidden" accept=".json" onchange="handleFileImport(event)">
+
+                <button onclick="window.print()" class="px-3 py-1.5 text-xs md:text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors shadow-sm flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clip-rule="evenodd" />
+                    </svg>
+                    Друк / PDF
+                </button>
+
+                <button onclick="clearAll()" class="px-2.5 py-1.5 text-xs md:text-sm font-medium text-red-600 bg-white border border-red-200 rounded-lg hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-400 transition-colors shadow-sm">
+                    Очистити
+                </button>
+            </div>
+        </div>
+
+        <!-- Notification Toast -->
+        <div id="toast-notification" class="hidden fixed bottom-5 right-5 z-50 bg-gray-900 text-white text-sm px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3 transition-all transform duration-300">
+            <span id="toast-icon">✅</span>
+            <span id="toast-message">Повідомлення</span>
+        </div>
+
+        <!-- Evaluation Metadata Form Section -->
+        <div class="p-4 md:p-8 bg-gray-50/70 border-b border-gray-200">
+            <h2 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                </svg>
+                Відомості про оцінювання
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                    <label for="meta-instructor" class="block text-xs font-semibold text-gray-600 uppercase mb-1">Лектор (Псевдо)</label>
+                    <input type="text" id="meta-instructor" placeholder="напр., Скіф" 
+                        class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label for="meta-topic" class="block text-xs font-semibold text-gray-600 uppercase mb-1">Тема / Назва заняття</label>
+                    <input type="text" id="meta-topic" placeholder="напр., Тактична медицина" 
+                        class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label for="meta-evaluator" class="block text-xs font-semibold text-gray-600 uppercase mb-1">Методолог / Оцінювач</label>
+                    <input type="text" id="meta-evaluator" placeholder="напр., Сокіл" 
+                        class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label for="meta-date" class="block text-xs font-semibold text-gray-600 uppercase mb-1">Дата оцінювання</label>
+                    <input type="date" id="meta-date" 
+                        class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                </div>
+            </div>
+            <div class="mt-4">
+                <label for="meta-notes" class="block text-xs font-semibold text-gray-600 uppercase mb-1">Зауваження та рекомендації оцінювача</label>
+                <textarea id="meta-notes" rows="2" placeholder="Введіть ключові зауваження, рекомендації чи деталі виступу..." 
+                    class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-y"></textarea>
+            </div>
+        </div>
+
+        <!-- Checklist Content -->
+        <div id="checklist-container" class="p-4 md:p-8 space-y-8">
+            <!-- Content generated by JS -->
+        </div>
+
+        <!-- Print Signatures Section (Visible only when printing) -->
+        <div class="print-only p-8 border-t border-gray-300 break-inside-avoid">
+            <h3 class="font-bold text-gray-800 mb-6 text-base uppercase">Підписи сторін</h3>
+            <div class="grid grid-cols-2 gap-12 text-sm">
+                <div>
+                    <p class="font-semibold text-gray-700 mb-8">Методолог / Оцінювач:</p>
+                    <div class="border-b border-gray-400 mb-1"></div>
+                    <div class="flex justify-between text-xs text-gray-500">
+                        <span>(Підпис)</span>
+                        <span>(Псевдо)</span>
+                    </div>
+                </div>
+                <div>
+                    <p class="font-semibold text-gray-700 mb-8">Лектор (Ознайомлений):</p>
+                    <div class="border-b border-gray-400 mb-1"></div>
+                    <div class="flex justify-between text-xs text-gray-500">
+                        <span>(Підпис)</span>
+                        <span>(Дата)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer / Grading Scale -->
+        <div class="bg-gray-50 p-6 md:p-8 border-t border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Шкала оцінювання</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                    <div class="flex items-center mb-2">
+                        <div class="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+                        <span class="font-bold text-gray-800">90 - 100 балів</span>
+                    </div>
+                    <span class="text-sm font-semibold text-green-600 block mb-1">Відмінно</span>
+                    <p class="text-xs text-gray-600 leading-relaxed">Високий рівень експертності, впевнено тримає аудиторію, ідеальна структура.</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                    <div class="flex items-center mb-2">
+                        <div class="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
+                        <span class="font-bold text-gray-800">75 - 89 балів</span>
+                    </div>
+                    <span class="text-sm font-semibold text-blue-600 block mb-1">Добре (Зараховано)</span>
+                    <p class="text-xs text-gray-600 leading-relaxed">Матеріал засвоєно якісно, незначні недоліки в невербаліці, таймінгу чи оформленні.</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                    <div class="flex items-center mb-2">
+                        <div class="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
+                        <span class="font-bold text-gray-800">60 - 74 балів</span>
+                    </div>
+                    <span class="text-sm font-semibold text-yellow-600 block mb-1">Задовільно</span>
+                    <p class="text-xs text-gray-600 leading-relaxed">База є, але часто підглядає, монотонно говорить або слабо взаємодіє. Потребує практики.</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                    <div class="flex items-center mb-2">
+                        <div class="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
+                        <span class="font-bold text-gray-800">0 - 59 балів</span>
+                    </div>
+                    <span class="text-sm font-semibold text-red-600 block mb-1">Незадовільно</span>
+                    <p class="text-xs text-gray-600 leading-relaxed">Читання з аркуша, відсутність розуміння теми, втрата контролю. Потребує перескладання.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Modal Dialog -->
+    <div id="history-modal" class="no-print fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-gray-100">
+            <!-- Modal Header -->
+            <div class="p-5 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Історія оцінювань на цьому девайсі
+                    </h3>
+                    <p class="text-xs text-gray-500 mt-0.5">Дані зберігаються виключно в пам'яті вашого браузера</p>
+                </div>
+                <button onclick="closeHistoryModal()" class="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-200 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Modal Body Filter -->
+            <div class="p-4 border-b border-gray-100 bg-white">
+                <input type="text" id="history-search-input" onkeyup="filterHistoryList(this.value)" placeholder="Пошук за лектором, темою чи датою..." 
+                    class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500 focus:bg-white">
+            </div>
+
+            <!-- Modal Body Scrollable Cards List -->
+            <div id="history-items-container" class="p-4 md:p-6 overflow-y-auto space-y-3 flex-1 bg-gray-50/50">
+                <!-- Rendered dynamically by JS -->
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-4 bg-gray-50 border-t border-gray-200 flex flex-wrap justify-between items-center gap-2">
+                <button onclick="clearAllHistory()" class="text-xs text-red-600 hover:text-red-800 font-medium px-3 py-1.5 rounded-md hover:bg-red-50 transition-colors">
+                    Очистити всю історію
+                </button>
+                <div class="flex gap-2">
+                    <button onclick="exportAllJSON()" class="px-4 py-2 text-xs md:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">
+                        Експортувати все (JSON)
+                    </button>
+                    <button onclick="closeHistoryModal()" class="px-4 py-2 text-xs md:text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+                        Закрити
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Checklist Data Structure
+        const checklistData = [
+            {
+                id: "group_org",
+                title: "I. Організація",
+                weight: 15,
+                items: [
+                    { id: "i1", text: "Привітання, представлення, озвучення теми, мети та правил", max: 5 },
+                    { id: "i2", text: "Наявність логічного плану та чіткої структури", max: 5 },
+                    { id: "i3", text: "Змістовні підсумки наприкінці виступу", max: 5 }
+                ]
+            },
+            {
+                id: "group_mat",
+                title: "II. Матеріал (Експертність)",
+                weight: 30,
+                items: [
+                    { id: "i4", text: "Подача «своїми словами» (без читання з аркуша/екрана)", max: 10 },
+                    { id: "i5", text: "Точність інформації, відсутність фактологічних помилок", max: 10 },
+                    { id: "i6", text: "Практична цінність (наведення прикладів з досвіду)", max: 5 },
+                    { id: "i7", text: "Впевнена та аргументована відповідь на запитання", max: 5 }
+                ]
+            },
+            {
+                id: "group_nonverb",
+                title: "III. Невербаліка та Ораторство",
+                weight: 20,
+                items: [
+                    { id: "i8", text: "Динамічний голос, відсутність монотонності", max: 5 },
+                    { id: "i9", text: "Чітка дикція, відсутність слів-паразитів та «еее/мее»", max: 5 },
+                    { id: "i10", text: "Постоянний зоровий контакт з аудиторією", max: 5 },
+                    { id: "i11", text: "Відкрита поза, доречна жестикуляція, рух простором", max: 5 }
+                ]
+            },
+            {
+                id: "group_interact",
+                title: "IV. Взаємодія з аудиторією",
+                weight: 20,
+                items: [
+                    { id: "i12", text: "Активізація уваги (постановка запитань слухачам)", max: 10 },
+                    { id: "i13", text: "Самостійне управління дисципліною та увагою групи", max: 10 }
+                ]
+            },
+            {
+                id: "group_vis",
+                title: "V. Наочність та Таймінг",
+                weight: 15,
+                items: [
+                    { id: "i14", text: "Якісна візуалізація, правильна робота з презентацією", max: 10 },
+                    { id: "i15", text: "Дотримання тайм-менеджменту (регламенту)", max: 5 }
+                ]
+            }
+        ];
+
+        const STORAGE_KEY = "instructor_checklist_evaluations_v1";
+        let scores = {};
+        let activeEvaluationId = null;
+
+        // Initialize the UI
+        function init() {
+            const container = document.getElementById('checklist-container');
+            container.innerHTML = '';
+            
+            checklistData.forEach(group => {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden break-inside-avoid';
+                
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'bg-gray-50 border-b border-gray-200 px-6 py-4 flex justify-between items-center';
+                headerDiv.innerHTML = `
+                    <h2 class="text-xl font-bold text-gray-800">${group.title}</h2>
+                    <span class="text-sm font-semibold bg-blue-100 text-blue-800 py-1 px-3 rounded-full">
+                        Макс: ${group.weight}
+                    </span>
+                `;
+                groupDiv.appendChild(headerDiv);
+                
+                const itemsDiv = document.createElement('div');
+                itemsDiv.className = 'divide-y divide-gray-100';
+                
+                group.items.forEach(item => {
+                    scores[item.id] = 0;
+
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'p-4 sm:px-6 hover:bg-gray-50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4';
+                    
+                    itemDiv.innerHTML = `
+                        <div class="flex items-start gap-4 flex-1">
+                            <div class="pt-1">
+                                <input type="checkbox" id="check_${item.id}" class="custom-checkbox" 
+                                    onchange="handleCheckboxChange('${item.id}', ${item.max}, this.checked)">
+                            </div>
+                            <label for="check_${item.id}" class="text-gray-700 font-medium cursor-pointer flex-1 leading-snug no-select">
+                                ${item.text}
+                            </label>
+                        </div>
+                        <div class="flex items-center self-end sm:self-auto space-x-2 bg-gray-100 p-1.5 rounded-lg border border-gray-200">
+                            <input type="number" id="input_${item.id}" 
+                                class="score-input w-16 text-center text-lg font-semibold bg-white border border-gray-300 rounded-md py-1"
+                                min="0" max="${item.max}" step="0.5" value="0"
+                                onchange="handleInputChange('${item.id}', ${item.max}, this.value)"
+                                onkeyup="handleInputChange('${item.id}', ${item.max}, this.value)">
+                            <span class="text-gray-500 font-medium text-sm">/ ${item.max}</span>
+                        </div>
+                    `;
+                    itemsDiv.appendChild(itemDiv);
+                });
+                
+                groupDiv.appendChild(itemsDiv);
+                container.appendChild(groupDiv);
+            });
+
+            // Set default date to today
+            const dateInput = document.getElementById('meta-date');
+            if (dateInput && !dateInput.value) {
+                dateInput.value = new Date().toISOString().split('T')[0];
+            }
+
+            updateTotalScore();
+            updateHistoryCountBadge();
+        }
+
+        function handleCheckboxChange(id, maxScore, isChecked) {
+            const inputEl = document.getElementById(`input_${id}`);
+            const newScore = isChecked ? maxScore : 0;
+            
+            scores[id] = newScore;
+            inputEl.value = newScore;
+            
+            updateTotalScore();
+        }
+
+        function handleInputChange(id, maxScore, value) {
+            let numVal = parseFloat(value);
+            
+            if (isNaN(numVal) || numVal < 0) {
+                numVal = 0;
+            } else if (numVal > maxScore) {
+                numVal = maxScore;
+            }
+            
+            scores[id] = numVal;
+            
+            const checkEl = document.getElementById(`check_${id}`);
+            const inputEl = document.getElementById(`input_${id}`);
+            
+            checkEl.checked = (numVal === maxScore);
+            
+            // Adjust input display if user typed out-of-bounds value
+            if (value !== "" && !isNaN(parseFloat(value))) {
+                if (parseFloat(value) > maxScore) {
+                    inputEl.value = maxScore;
+                } else if (parseFloat(value) < 0) {
+                    inputEl.value = 0;
+                }
+            }
+
+            updateTotalScore();
+        }
+
+        function updateTotalScore() {
+            let total = 0;
+            for (const key in scores) {
+                total += (scores[key] || 0);
+            }
+            
+            total = Math.round(total * 10) / 10;
+            
+            document.getElementById('total-score').innerText = total;
+            document.getElementById('progress-percentage').innerText = `${total}%`;
+            
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = `${total}%`;
+            
+            const statusText = document.getElementById('status-text');
+            
+            if (total >= 90) {
+                progressBar.className = 'progress-bar-fill h-3 rounded-full bg-green-400 shadow-[0_0_10px_rgba(74,222,128,0.5)]';
+                statusText.innerText = 'Відмінно';
+                statusText.className = 'text-green-300 font-bold tracking-wide';
+            } else if (total >= 75) {
+                progressBar.className = 'progress-bar-fill h-3 rounded-full bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.5)]';
+                statusText.innerText = 'Добре (Зараховано)';
+                statusText.className = 'text-blue-300 font-bold tracking-wide';
+            } else if (total >= 60) {
+                progressBar.className = 'progress-bar-fill h-3 rounded-full bg-yellow-400 shadow-[0_0_10px_rgba(250,204,21,0.5)]';
+                statusText.innerText = 'Задовільно';
+                statusText.className = 'text-yellow-300 font-bold tracking-wide';
+            } else {
+                progressBar.className = 'progress-bar-fill h-3 rounded-full bg-red-400 shadow-[0_0_10px_rgba(248,113,113,0.5)]';
+                statusText.innerText = 'Незадовільно';
+                statusText.className = 'text-red-300 font-bold tracking-wide';
+            }
+        }
+
+        // --- LocalStorage History Logic ---
+
+        function getSavedEvaluations() {
+            try {
+                const data = localStorage.getItem(STORAGE_KEY);
+                return data ? JSON.parse(data) : [];
+            } catch (e) {
+                console.error("Помилка читання localStorage:", e);
+                return [];
+            }
+        }
+
+        function saveSavedEvaluations(list) {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+                updateHistoryCountBadge();
+            } catch (e) {
+                console.error("Помилка збереження у localStorage:", e);
+                showToast("❌ Помилка збереження! Пам'ять сховища переповнена.", "error");
+            }
+        }
+
+        function updateHistoryCountBadge() {
+            const list = getSavedEvaluations();
+            const badge = document.getElementById('history-count-badge');
+            if (badge) badge.innerText = list.length;
+        }
+
+        function saveCurrentToLocal() {
+            const instructor = document.getElementById('meta-instructor').value.trim();
+            const topic = document.getElementById('meta-topic').value.trim();
+            const evaluator = document.getElementById('meta-evaluator').value.trim();
+            const date = document.getElementById('meta-date').value || new Date().toISOString().split('T')[0];
+            const notes = document.getElementById('meta-notes').value.trim();
+            
+            let total = 0;
+            for (const k in scores) total += scores[k];
+            total = Math.round(total * 10) / 10;
+            
+            const statusText = document.getElementById('status-text').innerText;
+
+            const record = {
+                id: activeEvaluationId || 'eval_' + Date.now(),
+                instructor: instructor || 'Невідомий лектор',
+                topic: topic || 'Без теми',
+                evaluator: evaluator || '—',
+                date: date,
+                updatedAt: new Date().toLocaleString('uk-UA'),
+                notes: notes,
+                scores: { ...scores },
+                totalScore: total,
+                statusText: statusText
+            };
+
+            let list = getSavedEvaluations();
+            const existingIndex = list.findIndex(item => item.id === record.id);
+            
+            if (existingIndex >= 0) {
+                list[existingIndex] = record;
+            } else {
+                list.unshift(record);
+            }
+
+            saveSavedEvaluations(list);
+            activeEvaluationId = record.id;
+
+            showToast("✅ Оцінювання успішно збережено на девайсі!", "success");
+        }
+
+        function openHistoryModal() {
+            const modal = document.getElementById('history-modal');
+            modal.classList.remove('hidden');
+            renderHistoryList();
+        }
+
+        function closeHistoryModal() {
+            const modal = document.getElementById('history-modal');
+            modal.classList.add('hidden');
+        }
+
+        function renderHistoryList(searchTerm = "") {
+            const container = document.getElementById('history-items-container');
+            const list = getSavedEvaluations();
+
+            const filtered = list.filter(item => {
+                const term = searchTerm.toLowerCase();
+                return item.instructor.toLowerCase().includes(term) ||
+                       item.topic.toLowerCase().includes(term) ||
+                       item.date.includes(term) ||
+                       (item.evaluator && item.evaluator.toLowerCase().includes(term));
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-gray-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <p class="font-medium text-base">Збережених оцінювань не знайдено</p>
+                        <p class="text-xs text-gray-400 mt-1">Заповніть чек-лист та натисніть "Зберегти", щоб вони з'явилися тут.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(item => {
+                let badgeColor = "bg-red-100 text-red-800 border-red-200";
+                if (item.totalScore >= 90) badgeColor = "bg-green-100 text-green-800 border-green-200";
+                else if (item.totalScore >= 75) badgeColor = "bg-blue-100 text-blue-800 border-blue-200";
+                else if (item.totalScore >= 60) badgeColor = "bg-yellow-100 text-yellow-800 border-yellow-200";
+
+                return `
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="space-y-1 flex-1">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="font-bold text-gray-900 text-base">${escapeHtml(item.instructor)}</span>
+                                <span class="text-xs px-2.5 py-0.5 rounded-full font-bold border ${badgeColor}">
+                                    ${item.totalScore} / 100 — ${escapeHtml(item.statusText)}
+                                </span>
+                            </div>
+                            <p class="text-xs text-gray-600">
+                                📌 <span class="font-medium text-gray-800">${escapeHtml(item.topic)}</span> 
+                                | 👤 Методолог: ${escapeHtml(item.evaluator)} 
+                                | 📅 ${item.date}
+                            </p>
+                            ${item.notes ? `<p class="text-xs text-gray-500 italic bg-gray-50 p-2 rounded border border-gray-100 mt-1">"${escapeHtml(item.notes.substring(0, 120))}${item.notes.length > 120 ? '...' : ''}"</p>` : ''}
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                            <button onclick="loadEvaluation('${item.id}')" class="px-3 py-1.5 text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors flex items-center">
+                                Open
+                            </button>
+                            <button onclick="exportSingleJSON('${item.id}')" title="Завантажити JSON цієї картки" class="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+                                📥
+                            </button>
+                            <button onclick="deleteEvaluation('${item.id}')" title="Видалити запис" class="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterHistoryList(val) {
+            renderHistoryList(val);
+        }
+
+        function loadEvaluation(id) {
+            const list = getSavedEvaluations();
+            const record = list.find(item => item.id === id);
+            if (!record) return;
+
+            activeEvaluationId = record.id;
+            
+            document.getElementById('meta-instructor').value = record.instructor || '';
+            document.getElementById('meta-topic').value = record.topic || '';
+            document.getElementById('meta-evaluator').value = record.evaluator || '';
+            document.getElementById('meta-date').value = record.date || '';
+            document.getElementById('meta-notes').value = record.notes || '';
+
+            // Load scores
+            for (const key in scores) {
+                const val = (record.scores && record.scores[key] !== undefined) ? record.scores[key] : 0;
+                scores[key] = val;
+
+                const inputEl = document.getElementById(`input_${key}`);
+                const checkEl = document.getElementById(`check_${key}`);
+                
+                if (inputEl) inputEl.value = val;
+                
+                // Max score check
+                let max = 5;
+                checklistData.forEach(g => g.items.forEach(i => { if (i.id === key) max = i.max; }));
+                if (checkEl) checkEl.checked = (val === max);
+            }
+
+            updateTotalScore();
+            closeHistoryModal();
+            showToast("📖 Оцінювання успішно завантажено!", "info");
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function deleteEvaluation(id) {
+            if (confirm("Ви впевнені, що хочете видалити цей запис з пристрою?")) {
+                let list = getSavedEvaluations();
+                list = list.filter(item => item.id !== id);
+                saveSavedEvaluations(list);
+                renderHistoryList(document.getElementById('history-search-input').value);
+                showToast("🗑️ Запис видалено!", "info");
+            }
+        }
+
+        function clearAllHistory() {
+            if (confirm("УВАГА! Ви дійсно бажаєте повністю очистити ВСЮ історію оцінювань на цьому пристрої?")) {
+                localStorage.removeItem(STORAGE_KEY);
+                updateHistoryCountBadge();
+                renderHistoryList();
+                showToast("🧹 Вся історія успішно очищена", "info");
+            }
+        }
+
+        // --- JSON Import / Export Logic ---
+
+        function exportAllJSON() {
+            const list = getSavedEvaluations();
+            if (list.length === 0) {
+                showToast("⚠️ Немає збережених оцінювань для експорту", "warning");
+                return;
+            }
+            downloadJSON(list, `checklist_backup_${new Date().toISOString().split('T')[0]}.json`);
+            showToast("📥 Файл резервної копії завантажено!", "success");
+        }
+
+        function exportSingleJSON(id) {
+            const list = getSavedEvaluations();
+            const record = list.find(item => item.id === id);
+            if (record) {
+                downloadJSON([record], `checklist_${sanitizeFilename(record.instructor)}_${record.date}.json`);
+            }
+        }
+
+        function downloadJSON(data, filename) {
+            const jsonStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function triggerImportJSON() {
+            document.getElementById('json-file-input').click();
+        }
+
+        function handleFileImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (!Array.isArray(imported)) {
+                        showToast("❌ Помилка: Файл має містити масив оцінювань", "error");
+                        return;
+                    }
+
+                    let currentList = getSavedEvaluations();
+                    let addedCount = 0;
+
+                    imported.forEach(newItem => {
+                        if (newItem.id && newItem.scores) {
+                            const idx = currentList.findIndex(x => x.id === newItem.id);
+                            if (idx >= 0) {
+                                currentList[idx] = newItem;
+                            } else {
+                                currentList.unshift(newItem);
+                                addedCount++;
+                            }
+                        }
+                    });
+
+                    saveSavedEvaluations(currentList);
+                    showToast(`✅ Успішно імпортовано! Додано/оновлено записів: ${imported.length}`, "success");
+                    event.target.value = ''; // Reset file input
+                } catch (err) {
+                    showToast("❌ Помилка читання JSON файлу", "error");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // --- Helpers & Cleanups ---
+
+        function clearAll() {
+            if (window.confirm("Ви впевнені, що хочете повністю очистити поточну форму оцінювання?")) {
+                activeEvaluationId = null;
+                document.getElementById('meta-instructor').value = '';
+                document.getElementById('meta-topic').value = '';
+                document.getElementById('meta-evaluator').value = '';
+                document.getElementById('meta-notes').value = '';
+                document.getElementById('meta-date').value = new Date().toISOString().split('T')[0];
+
+                for (const key in scores) {
+                    scores[key] = 0;
+                    const inputEl = document.getElementById(`input_${key}`);
+                    const checkEl = document.getElementById(`check_${key}`);
+                    if (inputEl) inputEl.value = 0;
+                    if (checkEl) checkEl.checked = false;
+                }
+
+                updateTotalScore();
+                showToast("🧹 Форму очищено!", "info");
+            }
+        }
+
+        function showToast(message, type = "info") {
+            const toast = document.getElementById('toast-notification');
+            const msgEl = document.getElementById('toast-message');
+            msgEl.innerText = message;
+            
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, "&amp;")
+                      .replace(/</g, "&lt;")
+                      .replace(/>/g, "&gt;")
+                      .replace(/"/g, "&quot;")
+                      .replace(/'/g, "&#039;");
+        }
+
+        function sanitizeFilename(str) {
+            return (str || 'lecturer').toLowerCase().replace(/[^a-z0-9а-яєіїґ]/gi, '_');
+        }
+
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swCode = `
+                    self.addEventListener('install', (e) => console.log('[SW] Installed'));
+                    self.addEventListener('fetch', (e) => {});
+                `;
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl).catch(err => console.log('SW failed:', err));
+            });
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
