@@ -179,6 +179,13 @@
             
             <div class="flex flex-wrap gap-2 items-center">
                 <!-- Action Buttons -->
+                <button onclick="startNewEvaluation()" title="Зберегти поточну форму та відкрити нову пусту" class="px-3 py-1.5 text-xs md:text-sm font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-blue-100" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Новий
+                </button>
+
                 <button onclick="saveCurrentToLocal()" class="px-3 py-1.5 text-xs md:text-sm font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors shadow-sm flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
@@ -966,6 +973,44 @@
         }
 
         // --- Helpers & Cleanups ---
+
+        function startNewEvaluation() {
+            const instructor = document.getElementById('meta-instructor').value.trim();
+            let hasScores = false;
+            for (const k in scores) {
+                if (scores[k] > 0) { hasScores = true; break; }
+            }
+
+            // Auto-save previous questionnaire if it contains data
+            let wasSaved = false;
+            if (instructor || hasScores) {
+                saveCurrentToLocal();
+                wasSaved = true;
+            }
+
+            // Reset form for a new blank evaluation
+            activeEvaluationId = null;
+            document.getElementById('meta-instructor').value = '';
+            document.getElementById('meta-topic').value = '';
+            document.getElementById('meta-notes').value = '';
+            document.getElementById('meta-date').value = new Date().toISOString().split('T')[0];
+
+            for (const key in scores) {
+                scores[key] = 0;
+                const inputEl = document.getElementById(`input_${key}`);
+                const checkEl = document.getElementById(`check_${key}`);
+                if (inputEl) inputEl.value = 0;
+                if (checkEl) checkEl.checked = false;
+            }
+
+            updateTotalScore();
+            if (wasSaved) {
+                showToast("✅ Попередній чек-лист збережено в історію! Створено нову форму.", "success");
+            } else {
+                showToast("✨ Створено нову чисту форму!", "info");
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
 
         function clearAll() {
             if (window.confirm("Ви впевнені, що хочете повністю очистити поточну форму оцінювання?")) {
