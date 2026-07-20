@@ -407,9 +407,21 @@
                 <button onclick="clearAllHistory()" class="text-xs text-red-600 hover:text-red-800 font-medium px-3 py-1.5 rounded-md hover:bg-red-50 transition-colors">
                     Очистити всю історію
                 </button>
-                <div class="flex gap-2">
-                    <button onclick="exportAllJSON()" class="px-4 py-2 text-xs md:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">
-                        Експортувати все (JSON)
+                <div class="flex gap-2 flex-wrap">
+                    <button onclick="triggerImportJSON()" class="px-3 py-2 text-xs md:text-sm font-semibold text-emerald-700 bg-emerald-50 border border-emerald-300 rounded-lg hover:bg-emerald-100 transition-colors flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                        </svg>
+                        Імпортувати історію
+                    </button>
+                    <button onclick="exportAllJSON()" class="px-3 py-2 text-xs md:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Експорт JSON
+                    </button>
+                    <button onclick="exportAllCSV()" title="Завантажити для Microsoft Excel" class="px-3 py-2 text-xs md:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors flex items-center">
+                        📊 CSV (Excel)
                     </button>
                     <button onclick="closeHistoryModal()" class="px-4 py-2 text-xs md:text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
                         Закрити
@@ -817,7 +829,7 @@
             }
         }
 
-        // --- JSON Import / Export Logic ---
+        // --- JSON / CSV Import & Export Logic ---
 
         function exportAllJSON() {
             const list = getSavedEvaluations();
@@ -826,7 +838,49 @@
                 return;
             }
             downloadJSON(list, `checklist_backup_${new Date().toISOString().split('T')[0]}.json`);
-            showToast("📥 Файл резервної копії завантажено!", "success");
+            showToast("📥 Файл резервної копії JSON завантажено!", "success");
+        }
+
+        function exportAllCSV() {
+            const list = getSavedEvaluations();
+            if (list.length === 0) {
+                showToast("⚠️ Немає збережених оцінювань для експорту", "warning");
+                return;
+            }
+
+            let csvContent = "\uFEFF"; // UTF-8 BOM for Microsoft Excel compatibility
+            csvContent += "ID;Дата;Лектор;Тема;Методолог;Загальний бал (100);Оцінка;Зауваження\n";
+
+            list.forEach(item => {
+                const row = [
+                    escapeCsvCell(item.id),
+                    escapeCsvCell(item.date),
+                    escapeCsvCell(item.instructor),
+                    escapeCsvCell(item.topic),
+                    escapeCsvCell(item.evaluator || "—"),
+                    escapeCsvCell(item.totalScore),
+                    escapeCsvCell(item.statusText),
+                    escapeCsvCell(item.notes || "")
+                ];
+                csvContent += row.join(";") + "\n";
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `checklist_history_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast("📊 Файл CSV (Excel) успішно завантажено!", "success");
+        }
+
+        function escapeCsvCell(val) {
+            if (val === null || val === undefined) return '""';
+            let str = String(val).replace(/"/g, '""');
+            return `"${str}"`;
         }
 
         function exportSingleJSON(id) {
@@ -883,6 +937,7 @@
                     });
 
                     saveSavedEvaluations(currentList);
+                    renderHistoryList();
                     showToast(`✅ Успішно імпортовано! Додано/оновлено записів: ${imported.length}`, "success");
                     event.target.value = ''; // Reset file input
                 } catch (err) {
