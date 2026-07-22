@@ -2,6 +2,7 @@
 list.html
 resources/
 *.json
+!manifest.json
 *.xlsx
 *.csv
 *.tsv

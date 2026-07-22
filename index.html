@@ -5,14 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Чек-лист оцінювання ефективності лектора</title>
     
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogItCn0LXrLWvQuNGB0YIg0L7RhtGW0L3RjtCy0LDQvdC90Y8iLAogICJzaG9ydF9uYW1lIjogItCn0LXrLWvQuNGB0YIiLAogICJkZXNjcmlwdGlvbiI6ICLQhtC90YLQtdGA0LDQutGC0LjQstC90LjQuSDRh9C10Lot0LvQuNGB0YIg0L7RhtGW0L3RjtCy0LDQvdC90Y8g0LXRhNC10LrRgtC40LLQvdC+0YHRgtGWINGW0L3RgdGC0YDRg9C60YLQvtGA0LAiLAogICJzdGFydF91cmwiOiAiLyIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiI2YzZjRmNiIsCiAgInRoZW1lX2NvbG9yIjogIiMzYjgyZjYiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJodHRwczovL3BsYWNlaG9sZC5jby8xOTJ4MTkyLzNiODJmNi93aGl0ZT90ZXh0PeCQIiwKICAgICAgInNpemVzIjogIjE5MngxOTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9wbmciCiAgICB9LAogICAgewogICAgICAic3JjIjogImh0dHBzOi8vcGxhY2Vob2xkLmNvLzUxMng1MTIvM2I4MmY2L3doaXRlP3RleHQ94JAgIiwKICAgICAgInNpemVzIjogIjUxMng1MTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9wbmciCiAgICB9CiAgXQp9">
+    <!-- Favicon & PWA Manifest -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#3b82f6">
     
     <!-- iOS Support -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Чек-лист">
-    <link rel="apple-touch-icon" href="https://placehold.co/192x192/3b82f6/white?text=✓">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -138,11 +140,19 @@
                     <h1 class="text-2xl md:text-3xl font-bold mb-1">Чек-лист оцінювання ефективності лектора</h1>
                     <p class="text-blue-100 opacity-90 text-sm md:text-base">Засновано на аналізі зворотного зв'язку методологів</p>
                 </div>
-                <div class="no-print bg-blue-700/60 text-blue-100 text-xs px-3 py-1.5 rounded-full backdrop-blur-md border border-blue-400/30 flex items-center shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5 text-green-300" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3 1a1 1 0 000 2h10a1 1 0 100-2H5zm0 4a1 1 0 100 2h7a1 1 0 100-2H5z" clip-rule="evenodd" />
-                    </svg>
-                    <span>🔒 Локальні дані на девайсі</span>
+                <div class="flex items-center gap-2">
+                    <button id="pwa-install-btn" onclick="installPWA()" class="hidden no-print bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-1.5 rounded-full shadow transition-colors flex items-center shrink-0 font-medium">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        <span>📲 Встановити застосунок</span>
+                    </button>
+                    <div class="no-print bg-blue-700/60 text-blue-100 text-xs px-3 py-1.5 rounded-full backdrop-blur-md border border-blue-400/30 flex items-center shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5 text-green-300" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3 1a1 1 0 000 2h10a1 1 0 100-2H5zm0 4a1 1 0 100 2h7a1 1 0 100-2H5z" clip-rule="evenodd" />
+                        </svg>
+                        <span>🔒 Локальні дані на девайсі</span>
+                    </div>
                 </div>
             </div>
             
@@ -1058,17 +1068,38 @@
             return (str || 'lecturer').toLowerCase().replace(/[^a-z0-9а-яєіїґ]/gi, '_');
         }
 
-        // PWA Service Worker Registration
+        // PWA Service Worker Registration & Install Prompt
+        let deferredPrompt = null;
+
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                const swCode = `
-                    self.addEventListener('install', (e) => console.log('[SW] Installed'));
-                    self.addEventListener('fetch', (e) => {});
-                `;
-                const blob = new Blob([swCode], { type: 'application/javascript' });
-                const swUrl = URL.createObjectURL(blob);
-                navigator.serviceWorker.register(swUrl).catch(err => console.log('SW failed:', err));
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('[SW] Registered:', reg.scope))
+                    .catch(err => console.warn('[SW] Registration failed:', err));
             });
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const installBtn = document.getElementById('pwa-install-btn');
+            if (installBtn) {
+                installBtn.classList.remove('hidden');
+            }
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('[PWA] User accepted the install prompt');
+                    }
+                    deferredPrompt = null;
+                    const installBtn = document.getElementById('pwa-install-btn');
+                    if (installBtn) installBtn.classList.add('hidden');
+                });
+            }
         }
 
         function preparePrintView() {
